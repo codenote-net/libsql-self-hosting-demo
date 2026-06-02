@@ -2,15 +2,15 @@ pre-commit:
   parallel: false
   commands:
     gitleaks:
-      run: gitleaks detect --source . --no-git --redact
+      run: mise exec -- gitleaks detect --source . --no-git --redact
     shellcheck:
       glob: "scripts/*.sh"
-      run: shellcheck {staged_files}
+      run: mise exec -- shellcheck {staged_files}
     app-check:
       root: app
       glob: "app/**/*.{ts,json}"
-      run: pnpm check
+      run: mise exec -- pnpm check
     app-format:
       root: app
       glob: "app/**/*.{ts,json}"
-      run: pnpm check:format
+      run: mise exec -- pnpm check:format
