@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.local/
+node_modules/
+app/node_modules/
+.pnpm-store/
+*.db
+*.sqld
+*.token
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
