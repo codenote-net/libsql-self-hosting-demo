@@ -11,9 +11,13 @@ need() {
 }
 
 need docker
-need node
+need mise
 need openssl
-need pnpm
+
+MISE_NODE_VERSION="$(mise exec -- node --version)"
+MISE_PNPM_VERSION="$(mise exec -- pnpm --version)"
+echo "Using Node.js ${MISE_NODE_VERSION} via mise"
+echo "Using pnpm ${MISE_PNPM_VERSION} via mise"
 
 mkdir -p "${ROOT_DIR}/.local/data/primary" \
   "${ROOT_DIR}/.local/data/replica" \
@@ -25,10 +29,10 @@ mkdir -p "${ROOT_DIR}/.local/data/primary" \
 "${ROOT_DIR}/scripts/gen-certs.sh"
 
 if [[ ! -f "${ROOT_DIR}/app/pnpm-lock.yaml" ]]; then
-  echo "Missing app/pnpm-lock.yaml. Run pnpm --dir app install first." >&2
+  echo "Missing app/pnpm-lock.yaml. Run mise exec -- pnpm --dir app install first." >&2
   exit 1
 fi
 
-pnpm --dir "${ROOT_DIR}/app" install --frozen-lockfile
+CI=true mise exec -- pnpm --dir "${ROOT_DIR}/app" install --frozen-lockfile
 
 echo "Local setup is ready. Docker services were not started."

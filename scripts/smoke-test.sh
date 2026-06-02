@@ -41,7 +41,7 @@ wait_http() {
 }
 
 run_cli() {
-  pnpm --dir "${APP_DIR}" exec tsx src/index.ts "$@" --token-path "${TOKEN_PATH}"
+  mise exec -- pnpm --dir "${APP_DIR}" exec tsx src/index.ts "$@" --token-path "${TOKEN_PATH}"
 }
 
 poll_replica_count() {

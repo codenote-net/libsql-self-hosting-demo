@@ -134,6 +134,18 @@ rm -rf .local/jwt
 ./scripts/setup.sh
 ```
 
+If a non-interactive shell reports
+`ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`, a corepack or global `pnpm` may be
+resolving ahead of mise. The repository scripts call `mise exec -- pnpm` so they
+use the pinned `pnpm 11.5.1`; run `mise install` first, then rerun
+`./scripts/setup.sh` or `./scripts/smoke-test.sh`. For manual app commands,
+prefer:
+
+```sh
+mise exec -- pnpm --dir app install --frozen-lockfile
+mise exec -- pnpm --dir app start -- count --target primary --token-path ../.local/jwt/jwt.token
+```
+
 ## References
 
 - Reference article: https://virtala.dev/posts/libsql-self-hosting/
