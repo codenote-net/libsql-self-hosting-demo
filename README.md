@@ -143,7 +143,7 @@ prefer:
 
 ```sh
 mise exec -- pnpm --dir app install --frozen-lockfile
-mise exec -- pnpm --dir app start -- count --target primary --token-path ../.local/jwt/jwt.token
+mise exec -- pnpm --dir app start count --target primary --token-path ../.local/jwt/jwt.token
 ```
 
 ## References
