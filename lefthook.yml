@@ -1,0 +1,24 @@
+pre-commit:
+  parallel: false
+  commands:
+    gitleaks:
+      run: mise exec -- gitleaks detect --source . --no-git --redact
+    shellcheck:
+      glob: "scripts/*.sh"
+      run: mise exec -- shellcheck {staged_files}
+    app-install:
+      glob: "app/*.{json,yaml}"
+      run: CI=true mise exec -- pnpm --dir app install --frozen-lockfile
+    app-check:
+      root: app
+      glob: "app/**/*.{ts,json}"
+      run: mise exec -- pnpm check
+    app-format:
+      root: app
+      glob: "app/**/*.{ts,json}"
+      run: mise exec -- pnpm check:format
+
+pre-push:
+  commands:
+    smoke-test:
+      run: mise exec -- ./scripts/smoke-test.sh

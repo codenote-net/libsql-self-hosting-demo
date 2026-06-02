@@ -1,0 +1,11 @@
+title = "libSQL self-hosting demo gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated local state is ignored and should not be scanned in working tree checks"
+paths = [
+  '''^\.local/''',
+  '''^app/pnpm-lock\.yaml$''',
+]

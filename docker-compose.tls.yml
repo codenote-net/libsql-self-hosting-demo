@@ -1,0 +1,38 @@
+services:
+  primary:
+    command:
+      - /bin/sqld
+      - --admin-listen-addr
+      - 0.0.0.0:8082
+      - --admin-auth-key
+      - ${LIBSQL_ADMIN_AUTH_KEY:-local-admin-key}
+      - --grpc-tls
+      - --grpc-cert-file
+      - /run/certs/server_cert.pem
+      - --grpc-key-file
+      - /run/certs/server_key.pem
+      - --grpc-ca-cert-file
+      - /run/certs/ca_cert.pem
+      - --no-welcome
+    volumes:
+      - ./.local/data/primary:/var/lib/sqld
+      - ./.local/jwt/jwt.pub:/run/secrets/jwt_pub:ro
+      - ./.local/certs:/run/certs:ro
+
+  replica:
+    environment:
+      SQLD_PRIMARY_URL: https://primary:5001
+    command:
+      - /bin/sqld
+      - --primary-grpc-tls
+      - --primary-grpc-cert-file
+      - /run/certs/client_cert.pem
+      - --primary-grpc-key-file
+      - /run/certs/client_key.pem
+      - --primary-grpc-ca-cert-file
+      - /run/certs/ca_cert.pem
+      - --no-welcome
+    volumes:
+      - ./.local/data/replica:/var/lib/sqld
+      - ./.local/jwt/jwt.pub:/run/secrets/jwt_pub:ro
+      - ./.local/certs:/run/certs:ro

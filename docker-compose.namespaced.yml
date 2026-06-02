@@ -1,0 +1,18 @@
+services:
+  primary:
+    command:
+      - /bin/sqld
+      - --admin-listen-addr
+      - 0.0.0.0:8082
+      - --admin-auth-key
+      - ${LIBSQL_ADMIN_AUTH_KEY:-local-admin-key}
+      - --enable-namespaces
+      - --disable-default-namespace
+      - --no-welcome
+
+  replica:
+    command:
+      - /bin/sqld
+      - --enable-namespaces
+      - --disable-default-namespace
+      - --no-welcome
