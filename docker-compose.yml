@@ -1,0 +1,61 @@
+name: libsql-self-hosting-demo
+
+x-libsql-image: &libsql-image ${LIBSQL_IMAGE:-ghcr.io/tursodatabase/libsql-server@sha256:528e068844b4bc5b87fb128da87e98d361d3414c4e1cced7b943939248e0ed2f}
+x-libsql-platform: &libsql-platform ${LIBSQL_PLATFORM:-linux/amd64}
+
+services:
+  primary:
+    image: *libsql-image
+    platform: *libsql-platform
+    environment:
+      SQLD_NODE: primary
+      SQLD_DB_PATH: /var/lib/sqld/primary.sqld
+      SQLD_HTTP_LISTEN_ADDR: 0.0.0.0:8080
+      SQLD_GRPC_LISTEN_ADDR: 0.0.0.0:5001
+      SQLD_AUTH_JWT_KEY_FILE: /run/secrets/jwt_pub
+      LIBSQL_ADMIN_AUTH_KEY: ${LIBSQL_ADMIN_AUTH_KEY:-local-admin-key}
+      RUST_LOG: info
+    command:
+      - /bin/sqld
+      - --admin-listen-addr
+      - 0.0.0.0:8082
+      - --no-welcome
+    ports:
+      - 127.0.0.1:${PRIMARY_HTTP_PORT:-18080}:8080
+      - 127.0.0.1:${PRIMARY_GRPC_PORT:-18081}:5001
+      - 127.0.0.1:${PRIMARY_ADMIN_PORT:-18082}:8082
+    volumes:
+      - ./.local/data/primary:/var/lib/sqld
+      - ./.local/jwt/jwt.pub:/run/secrets/jwt_pub:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /bin/sqld --version >/dev/null 2>&1 && (timeout 2 bash -c '</dev/tcp/127.0.0.1/8080')
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+
+  replica:
+    image: *libsql-image
+    platform: *libsql-platform
+    depends_on:
+      primary:
+        condition: service_healthy
+    environment:
+      SQLD_NODE: replica
+      SQLD_DB_PATH: /var/lib/sqld/replica.sqld
+      SQLD_HTTP_LISTEN_ADDR: 0.0.0.0:8080
+      SQLD_GRPC_LISTEN_ADDR: 0.0.0.0:5001
+      SQLD_AUTH_JWT_KEY_FILE: /run/secrets/jwt_pub
+      SQLD_PRIMARY_URL: http://primary:5001
+      RUST_LOG: info
+    command:
+      - /bin/sqld
+      - --no-welcome
+    ports:
+      - 127.0.0.1:${REPLICA_HTTP_PORT:-18083}:8080
+      - 127.0.0.1:${REPLICA_GRPC_PORT:-18084}:5001
+    volumes:
+      - ./.local/data/replica:/var/lib/sqld
+      - ./.local/jwt/jwt.pub:/run/secrets/jwt_pub:ro
