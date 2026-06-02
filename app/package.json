@@ -1,0 +1,25 @@
+{
+  "name": "libsql-self-hosting-demo-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit && biome lint .",
+    "check:format": "biome format .",
+    "demo": "tsx src/index.ts demo",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@libsql/client": "0.17.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.14",
+    "@types/node": "25.9.1",
+    "tsx": "4.22.4",
+    "typescript": "6.0.3"
+  },
+  "packageManager": "pnpm@11.5.1"
+}
