@@ -9,6 +9,8 @@ REPLICA_HTTP_PORT="${REPLICA_HTTP_PORT:-18083}"
 PRIMARY_ADMIN_PORT="${PRIMARY_ADMIN_PORT:-18082}"
 ADMIN_KEY="${LIBSQL_ADMIN_AUTH_KEY:-local-admin-key}"
 EXPECT_NAMESPACE_REPLICA="${EXPECT_NAMESPACE_REPLICA:-known-limitation}"
+LIBSQL_IMAGE="${LIBSQL_IMAGE:-ghcr.io/tursodatabase/libsql-server@sha256:528e068844b4bc5b87fb128da87e98d361d3414c4e1cced7b943939248e0ed2f}"
+LIBSQL_PLATFORM="${LIBSQL_PLATFORM:-linux/amd64}"
 
 log() {
   printf '\n==> %s\n' "$1"
@@ -71,6 +73,14 @@ cleanup_containers() {
   compose_base down -v --remove-orphans >/dev/null 2>&1 || true
 }
 
+reset_data_dir() {
+  mkdir -p "${ROOT_DIR}/.local/data"
+  docker run --rm --platform "${LIBSQL_PLATFORM}" --entrypoint /bin/sh \
+    -v "${ROOT_DIR}/.local/data:/data" "${LIBSQL_IMAGE}" \
+    -c 'rm -rf /data/*'
+  mkdir -p "${ROOT_DIR}/.local/data/primary" "${ROOT_DIR}/.local/data/replica"
+}
+
 trap cleanup_containers EXIT
 
 log "Preparing local state"
@@ -78,8 +88,7 @@ log "Preparing local state"
 
 log "Scenario 1: default namespace replication"
 cleanup_containers
-rm -rf "${ROOT_DIR}/.local/data"
-mkdir -p "${ROOT_DIR}/.local/data/primary" "${ROOT_DIR}/.local/data/replica"
+reset_data_dir
 compose_base up -d
 wait_http "http://127.0.0.1:${PRIMARY_HTTP_PORT}" "primary HTTP"
 wait_http "http://127.0.0.1:${REPLICA_HTTP_PORT}" "replica HTTP"
@@ -89,8 +98,7 @@ poll_replica_count "1"
 
 log "Scenario 2: primary-only namespaces"
 cleanup_containers
-rm -rf "${ROOT_DIR}/.local/data"
-mkdir -p "${ROOT_DIR}/.local/data/primary" "${ROOT_DIR}/.local/data/replica"
+reset_data_dir
 compose_namespaced up -d primary
 wait_http "http://127.0.0.1:${PRIMARY_HTTP_PORT}" "namespaced primary HTTP"
 create_namespace "demo"
@@ -109,8 +117,7 @@ echo "Auth failure and missing namespace failure were verified"
 
 log "Scenario 3: namespace plus replica re-verification"
 cleanup_containers
-rm -rf "${ROOT_DIR}/.local/data"
-mkdir -p "${ROOT_DIR}/.local/data/primary" "${ROOT_DIR}/.local/data/replica"
+reset_data_dir
 compose_namespaced up -d
 wait_http "http://127.0.0.1:${PRIMARY_HTTP_PORT}" "namespaced primary HTTP"
 wait_http "http://127.0.0.1:${REPLICA_HTTP_PORT}" "namespaced replica HTTP"
