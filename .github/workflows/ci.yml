@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+      - run: pnpm --dir app install --frozen-lockfile
+      - run: gitleaks detect --source . --no-git --redact
+      - run: shellcheck scripts/*.sh
+      - run: pnpm --dir app check
+      - run: pnpm --dir app check:format
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+      - run: pnpm --dir app install --frozen-lockfile
+      - run: ./scripts/smoke-test.sh
