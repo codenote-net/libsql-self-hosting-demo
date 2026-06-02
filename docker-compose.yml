@@ -13,12 +13,13 @@ services:
       SQLD_HTTP_LISTEN_ADDR: 0.0.0.0:8080
       SQLD_GRPC_LISTEN_ADDR: 0.0.0.0:5001
       SQLD_AUTH_JWT_KEY_FILE: /run/secrets/jwt_pub
-      LIBSQL_ADMIN_AUTH_KEY: ${LIBSQL_ADMIN_AUTH_KEY:-local-admin-key}
       RUST_LOG: info
     command:
       - /bin/sqld
       - --admin-listen-addr
       - 0.0.0.0:8082
+      - --admin-auth-key
+      - ${LIBSQL_ADMIN_AUTH_KEY:-local-admin-key}
       - --no-welcome
     ports:
       - 127.0.0.1:${PRIMARY_HTTP_PORT:-18080}:8080
