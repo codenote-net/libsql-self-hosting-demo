@@ -9,8 +9,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: jdx/mise-action@v3
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+      - uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db
         with:
           install: true
       - run: pnpm --dir app install --frozen-lockfile
@@ -22,8 +22,8 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: jdx/mise-action@v3
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+      - uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db
         with:
           install: true
       - run: pnpm --dir app install --frozen-lockfile
