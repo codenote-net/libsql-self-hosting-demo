@@ -51,16 +51,16 @@ Clean up all containers, volumes, and generated local state:
 ./scripts/smoke-test.sh
 ./scripts/cleanup.sh
 pnpm --dir app demo
-pnpm --dir app start -- init --target primary
-pnpm --dir app start -- insert --target primary --label hello
-pnpm --dir app start -- read --target replica
+pnpm --dir app start init --target primary
+pnpm --dir app start insert --target primary --label hello
+pnpm --dir app start read --target replica
 ```
 
 The CLI reads `.local/jwt/jwt.token` by default through the smoke test. For
 manual commands, pass an explicit token path when needed:
 
 ```sh
-pnpm --dir app start -- count --target primary --token-path ../.local/jwt/jwt.token
+pnpm --dir app start count --target primary --token-path ../.local/jwt/jwt.token
 ```
 
 ## Ports
